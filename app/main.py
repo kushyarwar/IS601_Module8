@@ -1,8 +1,8 @@
 import logging
+from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException
 from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
 from app.operations import add, subtract, multiply, divide
@@ -14,7 +14,8 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 app = FastAPI(title="Calculator API")
-templates = Jinja2Templates(directory="templates")
+
+_TEMPLATE_PATH = Path(__file__).parent.parent / "templates" / "index.html"
 
 
 class CalculationRequest(BaseModel):
@@ -23,9 +24,9 @@ class CalculationRequest(BaseModel):
 
 
 @app.get("/", response_class=HTMLResponse)
-async def root(request: Request):
+async def root():
     logger.info("GET / — serving calculator frontend")
-    return templates.TemplateResponse("index.html", {"request": request})
+    return HTMLResponse(content=_TEMPLATE_PATH.read_text(encoding="utf-8"))
 
 
 @app.post("/add")
