@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FastAPI Calculator</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .calculator {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      padding: 2rem;
+      width: 360px;
+    }
+    h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+    }
+    .inputs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    input[type="number"] {
+      flex: 1;
+      padding: 0.6rem 0.8rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    input[type="number"]:focus { border-color: #4f8ef7; }
+    .buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    button {
+      padding: 0.7rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      color: #fff;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.85; }
+    #btn-add      { background: #4f8ef7; }
+    #btn-subtract { background: #f7914f; }
+    #btn-multiply { background: #6dc96d; }
+    #btn-divide   { background: #d95f5f; }
+    .result-box {
+      background: #f7f9fc;
+      border: 1px solid #e0e4ea;
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+      min-height: 56px;
+    }
+    #result-label { font-size: 0.8rem; color: #888; margin-bottom: 0.3rem; }
+    #result {
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .error { color: #d95f5f !important; font-size: 1rem !important; }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h1>FastAPI Calculator</h1>
+    <div class="inputs">
+      <input id="num-a" type="number" placeholder="First number" />
+      <input id="num-b" type="number" placeholder="Second number" />
+    </div>
+    <div class="buttons">
+      <button id="btn-add"      onclick="calculate('add')">Add</button>
+      <button id="btn-subtract" onclick="calculate('subtract')">Subtract</button>
+      <button id="btn-multiply" onclick="calculate('multiply')">Multiply</button>
+      <button id="btn-divide"   onclick="calculate('divide')">Divide</button>
+    </div>
+    <div class="result-box">
+      <div id="result-label">Result</div>
+      <div id="result">—</div>
+    </div>
+  </div>
+
+  <script>
+    async function calculate(operation) {
+      const a = parseFloat(document.getElementById('num-a').value);
+      const b = parseFloat(document.getElementById('num-b').value);
+      const resultEl = document.getElementById('result');
+
+      if (isNaN(a) || isNaN(b)) {
+        resultEl.textContent = 'Enter both numbers';
+        resultEl.className = 'error';
+        return;
+      }
+
+      try {
+        const response = await fetch(`/${operation}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ a, b })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          resultEl.textContent = data.detail || 'Error';
+          resultEl.className = 'error';
+        } else {
+          resultEl.textContent = data.result;
+          resultEl.className = '';
+        }
+      } catch {
+        resultEl.textContent = 'Network error';
+        resultEl.className = 'error';
+      }
+    }
+  </script>
+</body>
+</html>
