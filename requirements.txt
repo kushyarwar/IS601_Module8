@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+jinja2
+pytest
+httpx
+pytest-asyncio
+pytest-cov
+playwright
+pytest-playwright
